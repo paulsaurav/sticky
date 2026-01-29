@@ -1,0 +1,453 @@
+:root {
+  --bg: #161618;
+  --bg-elevated: #1e1e22;
+  --bg-input: #1c1c20;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(167, 139, 250, 0.4);
+  --text: #e4e4e7;
+  --text-muted: #71717a;
+  --accent: #a78bfa;
+  --accent-hover: #c4b5fd;
+  --accent-soft: rgba(167, 139, 250, 0.15);
+  --yellow: #eab308;
+  --yellow-hover: #facc15;
+  --green: #22c55e;
+  --green-hover: #4ade80;
+  --red: #ef4444;
+  --red-hover: #f87171;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: transparent;
+  overflow: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  height: 100vh;
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.titlebar {
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 8px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.titlebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.titlebar-btn {
+  width: 32px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.titlebar-btn.minimize,
+.titlebar-btn.snap,
+.titlebar-btn.close {
+  width: 24px;
+}
+
+.titlebar-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.titlebar-btn:active {
+  transform: scale(0.92);
+}
+
+/* Pin button */
+.titlebar-btn.pin {
+  width: 28px;
+  color: var(--text-muted);
+}
+.titlebar-btn.pin .pin-icon {
+  width: 14px;
+  height: 14px;
+  transition: stroke 0.15s;
+  transform: rotate(180deg);
+}
+.titlebar-btn.pin:hover {
+  color: var(--text);
+}
+.titlebar-btn.pin.pinned {
+  color: var(--accent);
+}
+.titlebar-btn.pin.pinned .pin-icon {
+  stroke: var(--accent);
+}
+.titlebar-btn.pin::after {
+  display: none;
+}
+
+/* Minimize: yellow dot */
+.titlebar-btn.minimize::after {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--yellow);
+  opacity: 0.9;
+  content: "";
+  transition: background 0.15s, transform 0.15s;
+}
+.titlebar-btn.minimize:hover::after {
+  background: var(--yellow-hover);
+  transform: scale(1.15);
+}
+
+/* Snap: green dot (middle button) */
+.titlebar-snap-wrap {
+  position: relative;
+}
+.titlebar-btn.snap::after {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--green);
+  opacity: 0.9;
+  content: "";
+  transition: background 0.15s, transform 0.15s;
+}
+.titlebar-btn.snap:hover::after {
+  background: var(--green-hover);
+  transform: scale(1.15);
+}
+
+.snap-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  padding: 6px 0;
+  min-width: 140px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s, visibility 0.15s, transform 0.15s;
+  z-index: 100;
+}
+.titlebar-snap-wrap:hover .snap-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.snap-option {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.snap-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Close: red dot */
+.titlebar-btn.close::after {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--red);
+  opacity: 0.9;
+  content: "";
+  transition: background 0.15s, transform 0.15s;
+}
+.titlebar-btn.close:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+.titlebar-btn.close:hover::after {
+  background: var(--red-hover);
+  transform: scale(1.15);
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  padding-right: 6px;
+}
+
+.todo-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.todo-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.todo-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.todo-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  transition: background 0.15s;
+}
+
+.todo-item:hover {
+  background: var(--bg-elevated);
+}
+
+.todo-item.done .todo-title {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.todo-check {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.todo-item.done .todo-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  cursor: default;
+  pointer-events: none;
+}
+
+.todo-check svg {
+  width: 11px;
+  height: 11px;
+  color: #fff;
+}
+
+.todo-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todo-title {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-title:focus {
+  outline: none;
+}
+
+.todo-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.todo-date-done {
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+.todo-delete {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.todo-item:hover .todo-delete {
+  opacity: 1;
+}
+
+.todo-delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.todo-delete svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Add task: circular + on right, click opens text field */
+.todo-form {
+  flex-shrink: 0;
+  padding-top: 16px;
+  margin-top: 0;
+}
+
+.add-task-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  justify-content: flex-end;
+}
+
+/* Circular lavender + button on the right */
+.add-task-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: #b8a9e0;
+  color: #1a1a1e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.add-task-btn:hover {
+  background: #c4b5fd;
+  transform: scale(1.05);
+}
+
+.add-task-btn:active {
+  transform: scale(0.98);
+}
+
+.add-task-plus {
+  width: 22px;
+  height: 22px;
+  stroke: #1a1a1e;
+}
+
+.add-task-input-wrap {
+  flex: 1;
+  min-width: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-width 0.25s ease, opacity 0.2s ease;
+}
+
+.add-task-wrap.open .add-task-input-wrap {
+  max-width: 400px;
+  opacity: 1;
+}
+
+.add-task-input-wrap input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.add-task-input-wrap input:focus {
+  border-color: var(--border-focus);
+}
+
+.add-task-input-wrap input::placeholder {
+  color: var(--text-muted);
+}

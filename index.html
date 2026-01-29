@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sticky</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+  <body>
+    <div id="app">
+      <header class="titlebar" data-tauri-drag-region>
+        <span class="title">Sticky</span>
+        <div class="titlebar-actions">
+          <button id="btn-pin" class="titlebar-btn pin" title="Pin / Unpin" aria-label="Pin window">
+            <!-- GiPin-style (react-icons/gi) push pin -->
+            <svg class="pin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6l-4 8h8l-4-8V2z"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg>
+          </button>
+          <button id="btn-minimize" class="titlebar-btn minimize" title="Minimize" aria-label="Minimize"></button>
+          <div class="titlebar-snap-wrap">
+            <button id="btn-snap" type="button" class="titlebar-btn snap" title="Snap to corner" aria-label="Snap" aria-haspopup="true"></button>
+            <div id="snap-menu" class="snap-menu" role="menu" aria-hidden="true">
+              <button type="button" class="snap-option" data-corner="top-left">Top left</button>
+              <button type="button" class="snap-option" data-corner="top-right">Top right</button>
+              <button type="button" class="snap-option" data-corner="bottom-left">Bottom left</button>
+              <button type="button" class="snap-option" data-corner="bottom-right">Bottom right</button>
+            </div>
+          </div>
+          <button id="btn-close" class="titlebar-btn close" title="Close" aria-label="Close"></button>
+        </div>
+      </header>
+      <main class="content">
+        <ul id="todo-list" class="todo-list" role="list"></ul>
+        <form id="todo-form" class="todo-form">
+          <div class="add-task-wrap">
+            <div class="add-task-input-wrap" id="add-task-input-wrap">
+              <input id="todo-input" type="text" placeholder="New task..." autocomplete="off" />
+            </div>
+            <button type="button" id="add-task-btn" class="add-task-btn" aria-label="Add task" title="Add task">
+              <svg class="add-task-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </body>
+</html>
