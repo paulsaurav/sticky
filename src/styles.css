@@ -263,6 +263,7 @@ body {
   border-radius: var(--radius-sm);
   margin-bottom: 8px;
   transition: background 0.15s;
+  min-width: 0;
 }
 
 .todo-item:hover {
@@ -309,21 +310,43 @@ body {
 
 .todo-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Wrapper constrains textarea width so text wraps at natural breakpoints */
+.todo-title-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .todo-title {
-  flex: 1;
+  display: block;
+  width: 100%;
+  max-width: 100%;
   border: none;
   background: none;
   color: var(--text);
   font-size: 14px;
+  line-height: 1.4;
   outline: none;
   padding: 0;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-height: 22px;
+  resize: none;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  font-family: inherit;
+  vertical-align: top;
+  box-sizing: border-box;
 }
 
 .todo-title:focus {
@@ -389,8 +412,8 @@ body {
 /* Circular lavender + button on the right */
 .add-task-btn {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: 50%;
   background: #b8a9e0;
@@ -413,8 +436,8 @@ body {
 }
 
 .add-task-plus {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   stroke: #1a1a1e;
 }
 

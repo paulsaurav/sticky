@@ -3,6 +3,7 @@ import {
   getCurrentWindow,
   currentMonitor,
   PhysicalPosition,
+  PhysicalSize,
 } from "@tauri-apps/api/window";
 
 interface Todo {
@@ -89,22 +90,43 @@ function renderTodo(item: Todo, listEl: HTMLUListElement, payload: TodosPayload,
   const row = document.createElement("div");
   row.className = "todo-row";
 
-  const title = document.createElement("input");
-  title.type = "text";
+  const titleWrap = document.createElement("div");
+  titleWrap.className = "todo-title-wrap";
+
+  const title = document.createElement("textarea");
   title.className = "todo-title";
+  title.rows = 1;
   title.value = item.title;
   title.title = item.title;
-  title.addEventListener("change", () => {
+  title.placeholder = "Task...";
+  function syncTitleHeight(): void {
+    title.style.height = "auto";
+    title.style.height = `${Math.max(22, title.scrollHeight)}px`;
+  }
+  title.addEventListener("input", syncTitleHeight);
+  title.addEventListener("blur", () => {
     const v = title.value.trim();
     title.title = v;
+    syncTitleHeight();
     const todos = v
       ? payload.todos.map((t) => (t.id === item.id ? { ...t, title: v, updated_at: now() } : t))
       : payload.todos.filter((t) => t.id !== item.id);
     const next = { todos, updated_at: now() };
-    setPayload(next);
-    debouncedSave(next);
-    renderList(listEl, next, setPayload);
+    if (next.todos.length !== payload.todos.length || (next.todos.find((t) => t.id === item.id)?.title !== item.title)) {
+      setPayload(next);
+      debouncedSave(next);
+      renderList(listEl, next, setPayload);
+    }
   });
+  title.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      title.blur();
+    }
+  });
+  syncTitleHeight();
+
+  titleWrap.appendChild(title);
 
   const del = document.createElement("button");
   del.type = "button";
@@ -119,7 +141,7 @@ function renderTodo(item: Todo, listEl: HTMLUListElement, payload: TodosPayload,
     renderList(listEl, next, setPayload);
   });
 
-  row.append(title, del);
+  row.append(titleWrap, del);
 
   const meta = document.createElement("div");
   meta.className = "todo-meta";
@@ -137,11 +159,21 @@ function renderTodo(item: Todo, listEl: HTMLUListElement, payload: TodosPayload,
   return li;
 }
 
+function syncAllTitleHeights(listEl: HTMLUListElement): void {
+  requestAnimationFrame(() => {
+    listEl.querySelectorAll<HTMLTextAreaElement>(".todo-title").forEach((ta) => {
+      ta.style.height = "auto";
+      ta.style.height = `${Math.max(22, ta.scrollHeight)}px`;
+    });
+  });
+}
+
 function renderList(listEl: HTMLUListElement, payload: TodosPayload, setPayload: (p: TodosPayload) => void): void {
   listEl.innerHTML = "";
   payload.todos.forEach((item) => {
     listEl.appendChild(renderTodo(item, listEl, payload, setPayload));
   });
+  syncAllTitleHeights(listEl);
 }
 
 async function init(): Promise<void> {
@@ -198,6 +230,40 @@ async function init(): Promise<void> {
 
   const win = getCurrentWindow();
 
+  // Restore window position and size from last session
+  try {
+    const state = await invoke<{ x: number; y: number; width: number; height: number } | null>("read_window_state");
+    if (state) {
+      await win.setPosition(new PhysicalPosition(state.x, state.y));
+      await win.setSize(new PhysicalSize(state.width, state.height));
+    }
+  } catch (e) {
+    console.error("restore window state", e);
+  }
+
+  // Save window state when moved, resized, or hidden (debounced)
+  let windowStateTimeout: ReturnType<typeof setTimeout> | null = null;
+  async function saveWindowState(): Promise<void> {
+    try {
+      const pos = await win.outerPosition();
+      const size = await win.outerSize();
+      await invoke("save_window_state", {
+        state: { x: pos.x, y: pos.y, width: size.width, height: size.height },
+      });
+    } catch (e) {
+      console.error("save window state", e);
+    }
+  }
+  function debouncedSaveWindowState(): void {
+    if (windowStateTimeout) clearTimeout(windowStateTimeout);
+    windowStateTimeout = setTimeout(() => {
+      windowStateTimeout = null;
+      saveWindowState();
+    }, 300);
+  }
+  win.onMoved(() => debouncedSaveWindowState());
+  win.onResized(() => debouncedSaveWindowState());
+
   const pinBtn = document.getElementById("btn-pin");
   let isPinned = true;
   function updatePinIcon(): void {
@@ -213,7 +279,14 @@ async function init(): Promise<void> {
   updatePinIcon();
 
   document.getElementById("btn-minimize")?.addEventListener("click", () => win.minimize());
-  document.getElementById("btn-close")?.addEventListener("click", () => win.close());
+  document.getElementById("btn-close")?.addEventListener("click", () => win.hide());
+
+  // On close (titlebar X, Alt+F4, taskbar): save position and hide to tray
+  win.onCloseRequested(async (event) => {
+    event.preventDefault();
+    await saveWindowState();
+    win.hide();
+  });
 
   const snapBtn = document.getElementById("btn-snap");
   snapBtn?.addEventListener("click", (e) => e.stopPropagation());
